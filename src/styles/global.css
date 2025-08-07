@@ -12,4 +12,5 @@
 
 @theme {
     --default-font-family: 'Inter Variable', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-hkr: #6dc71d;
 }

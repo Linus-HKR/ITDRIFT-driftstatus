@@ -1,7 +1,61 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { glob } from "glob";
+import { readFileSync } from "fs";
+import type { Ticket } from "../types/tickets";
+import { db } from "../lib/db";
+
+const internalUsers = await db.query.internalUsers.findMany({
+  columns: {
+    username: true,
+  },
+});
+
+const ticketJson = await glob("sample/**/*.json");
+const tickets = ticketJson
+  .map((ticket) => readFileSync(ticket, "utf16le"))
+  .map((ticket) => JSON.parse(ticket.trim()) as Ticket)
+  .filter(
+    (ticket) =>
+      !internalUsers.map((int) => int.username).includes(ticket.Username)
+  );
 ---
 
 <Layout>
-  <h1 class="text-3xl">Astro</h1>
+  <header class="h-16 p-4 rounded bg-hkr flex justify-center items-center mb-8">
+    <h1 class="text-5xl font-black text-gray-950">IT-DRIFT STATUS</h1>
+  </header>
+  <main class="grid lg:grid-cols-2 gap-8">
+    <section class="ring-2 ring-hkr rounded">
+      <h2 class="text-3xl p-4 font-bold bg-hkr text-gray-950">
+        Pågående problem
+      </h2>
+      <div class="flex flex-col gap-4 p-4">
+        {
+          tickets.map((ticket) => (
+            <div class="ring-2 ring-gray-950 p-2 rounded flex flex-col gap-2">
+              <span class="text-xl font-semibold">{ticket.Title}</span>
+              <p class="line-clamp-2 whitespace-pre-wrap">{ticket.Error}</p>
+              <span class="text-sm text-gray-700">Öppnad: {ticket.Date}</span>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+    <section class="ring-2 ring-hkr rounded">
+      <h2 class="text-3xl font-bold bg-hkr text-gray-950 p-4">
+        Planerat underhåll
+      </h2>
+    </section>
+  </main>
 </Layout>
+
+<script>
+  const reload = () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 15_000);
+  };
+
+  import.meta.env.PROD && reload();
+</script>
