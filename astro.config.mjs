@@ -23,6 +23,7 @@ export default defineConfig({
       INTERNAL_USERS: envField.string({
         context: "server",
         access: "secret",
+        default: "olalin, eksted, mindb",
       }),
     },
   },
