@@ -11,6 +11,7 @@ export type Ticket = {
   ticketOwner: string;
   Status: string;
   deadLine: string;
+  visible?: "Private" | "Public";
 };
 
 export type Activity = {
