@@ -9,12 +9,12 @@ const internalUsers = await db.query.internalUsers.findMany({
   },
 });
 
+// Tickets not belonging to internal users
 const tickets = (await readTickets()).filter(
   (ticket) => !internalUsers.some((int) => int.username === ticket.Username)
 );
 
-const schedule = readExcel();
-const scheduledActivities = schedule.filter(
+const scheduledActivities = readExcel().filter(
   (activity) => activity["Inlagt i driftsschema"] === "Ja"
 );
 ---
