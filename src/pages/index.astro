@@ -1,9 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { glob } from "glob";
-import { readFileSync } from "fs";
-import type { Ticket } from "../types/tickets";
 import { db } from "../lib/db";
+import { readExcel, readTickets } from "../lib/files";
 
 const internalUsers = await db.query.internalUsers.findMany({
   columns: {
@@ -11,14 +9,14 @@ const internalUsers = await db.query.internalUsers.findMany({
   },
 });
 
-const ticketJson = await glob("sample/**/*.json");
-const tickets = ticketJson
-  .map((ticket) => readFileSync(ticket, "utf16le"))
-  .map((ticket) => JSON.parse(ticket.trim()) as Ticket)
-  .filter(
-    (ticket) =>
-      !internalUsers.map((int) => int.username).includes(ticket.Username)
-  );
+const tickets = (await readTickets()).filter(
+  (ticket) => !internalUsers.some((int) => int.username === ticket.Username)
+);
+
+const schedule = readExcel();
+const scheduledActivities = schedule.filter(
+  (activity) => activity["Inlagt i driftsschema"] === "Ja"
+);
 ---
 
 <Layout>
@@ -36,7 +34,9 @@ const tickets = ticketJson
             <div class="ring-2 ring-gray-950 p-2 rounded flex flex-col gap-2">
               <span class="text-xl font-semibold">{ticket.Title}</span>
               <p class="line-clamp-2 whitespace-pre-wrap">{ticket.Error}</p>
-              <span class="text-sm text-gray-700">Öppnad: {ticket.Date}</span>
+              <span class="text-sm text-gray-700">
+                Öppnad: {ticket.Date.toLocaleDateString()}
+              </span>
             </div>
           ))
         }
@@ -44,18 +44,37 @@ const tickets = ticketJson
     </section>
     <section class="ring-2 ring-hkr rounded">
       <h2 class="text-3xl font-bold bg-hkr text-gray-950 p-4">
-        Planerat underhåll
+        Planerade moment
       </h2>
+      <div class="flex flex-col gap-4 p-4">
+        {
+          scheduledActivities.map((activity) => (
+            <div class="ring-2 ring-gray-950 p-2 rounded flex flex-col gap-2">
+              <div>
+                <div class="text-xl font-semibold">{activity.Moment}</div>
+                <div class="text-lg">
+                  {activity["Påverkan av undervisning"]}
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="text-sm text-gray-700">
+                  Start: {activity.Start.toLocaleDateString()}
+                </span>
+                <span class="text-sm text-gray-700">
+                  Slut: {activity.Stopp.toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          ))
+        }
+      </div>
     </section>
   </main>
 </Layout>
 
 <script>
-  const reload = () => {
+  import.meta.env.PROD &&
     setTimeout(() => {
       window.location.reload();
     }, 15_000);
-  };
-
-  import.meta.env.PROD && reload();
 </script>
