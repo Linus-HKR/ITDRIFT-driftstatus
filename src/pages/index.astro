@@ -12,9 +12,9 @@ const tickets = (await readTickets()).filter(
   (ticket) => !internalUsers.some((int) => int === ticket.Username)
 );
 
-const scheduledActivities = readExcel().filter(
-  (activity) => activity["Inlagt i driftsschema"] === "Ja"
-);
+const scheduledActivities = readExcel()
+  .filter((activity) => activity["Inlagt i driftsschema"] === "Ja")
+  .filter((activity) => activity.Stopp.getTime() > Date.now());
 ---
 
 <Layout>
