@@ -16,7 +16,8 @@
     "astro": "^5.12.8",
     "drizzle-orm": "^0.44.4",
     "glob": "^11.0.3",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "xlsx": "file:vendor\\xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.4"
