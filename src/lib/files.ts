@@ -7,7 +7,7 @@ import { join } from "node:path/posix";
 
 export async function readTickets() {
   const ticketJson = await glob(
-    join(TICKET_FOLDER_PATH, "/{new,prio1,prio2,prio3}/*.json")
+    join(TICKET_FOLDER_PATH, "/{new,prio1,prio2,prio3}/*.json"),
   );
   const tickets = ticketJson
     .map((ticketPath) => fs.readFileSync(ticketPath, "utf16le"))
@@ -17,8 +17,8 @@ export async function readTickets() {
       Date: new Date(
         `20${ticket.Date.substring(0, 2)}-${ticket.Date.substring(
           2,
-          4
-        )}-${ticket.Date.substring(4, 6)}`
+          4,
+        )}-${ticket.Date.substring(4, 6)}`,
       ),
     }));
 
@@ -31,7 +31,7 @@ export function readExcel() {
     cellDates: true,
   });
   const scheduleData = XLSX.utils.sheet_to_json(
-    workbook.Sheets[workbook.SheetNames[0]]
+    workbook.Sheets[workbook.SheetNames[0]],
   );
 
   return scheduleData as Activity[];

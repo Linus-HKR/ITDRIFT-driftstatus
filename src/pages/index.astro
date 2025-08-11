@@ -4,34 +4,34 @@ import { readExcel, readTickets } from "../lib/files";
 import { INTERNAL_USERS } from "astro:env/server";
 
 const internalUsers = INTERNAL_USERS.split(",").map((usr) =>
-  usr.trim().toLowerCase()
+  usr.trim().toLowerCase(),
 );
 
 // Tickets not belonging to internal users
-const tickets = (await readTickets()).filter(
-  (ticket) => !internalUsers.some((int) => int === ticket.Username)
-);
+const tickets = (await readTickets())
+  .filter((ticket) => !internalUsers.some((int) => int === ticket.Username))
+  .sort((a, b) => a.Date.getTime() - b.Date.getTime());
 
 const scheduledActivities = readExcel()
   .filter((activity) => activity["Inlagt i driftsschema"] === "Ja")
-  .filter((activity) => activity.Stopp.getTime() > Date.now());
+  .filter((activity) => activity.Stopp.getTime() > Date.now())
+  .sort((a, b) => a.Start.getTime() - b.Start.getTime());
 ---
 
 <Layout>
-  <header class="p-4 rounded bg-hkr flex justify-center items-center mb-8">
+  <header class="bg-hkr mb-8 flex items-center justify-center rounded p-4">
     <h1 class="text-5xl font-black text-gray-950">IT-DRIFT STATUS</h1>
   </header>
-  <main class="grid lg:grid-cols-2 gap-8">
-    <section class="ring-2 ring-hkr rounded">
-      <h2 class="text-3xl p-4 font-bold bg-hkr text-gray-950 flex">
-        Pågående problem
-        <span class="ml-auto">{tickets.length}</span>
+  <main class="grid gap-8 lg:grid-cols-2">
+    <section class="ring-hkr rounded ring-2">
+      <h2 class="bg-hkr flex p-4 text-3xl font-bold text-gray-950">
+        Pågående problem &ndash; {tickets.length}
       </h2>
-      <div class="flex flex-col gap-4 p-4">
+      <div class="grid grid-cols-1 gap-4 p-4 xl:grid-cols-2">
         {
           tickets.length > 0 ? (
             tickets.map((ticket) => (
-              <div class="ring-2 ring-gray-950 p-2 rounded flex flex-col gap-2">
+              <div class="flex flex-col gap-2 rounded p-2 ring-2 ring-gray-950 xl:odd:last:col-span-2">
                 <span class="text-xl font-semibold">{ticket.Title}</span>
                 <p class="line-clamp-2 whitespace-pre-wrap">{ticket.Error}</p>
                 <span class="text-sm text-gray-700">
@@ -47,30 +47,43 @@ const scheduledActivities = readExcel()
         }
       </div>
     </section>
-    <section class="ring-2 ring-hkr rounded">
-      <h2 class="text-3xl font-bold bg-hkr text-gray-950 p-4">
+    <section class="ring-hkr rounded ring-2">
+      <h2 class="bg-hkr p-4 text-3xl font-bold text-gray-950">
         Planerade moment
       </h2>
-      <div class="flex flex-col gap-4 p-4">
+      <div class="grid grid-cols-1 gap-4 p-4 xl:grid-cols-2">
         {
-          scheduledActivities.map((activity) => (
-            <div class="ring-2 ring-gray-950 p-2 rounded flex flex-col gap-2">
-              <div>
-                <div class="text-xl font-semibold">{activity.Moment}</div>
-                <div class="text-lg">
-                  {activity["Påverkan av undervisning"]}
+          scheduledActivities.map((activity) => {
+            const active =
+              activity.Start.getTime() < Date.now() &&
+              Date.now() < activity.Stopp.getTime();
+
+            return (
+              <div
+                data-active={active}
+                class="group flex flex-col gap-2 rounded p-2 ring-2 ring-gray-950 data-[active=true]:ring-red-600 xl:odd:last:col-span-2"
+              >
+                <div>
+                  <div class="text-xl font-semibold">{activity.Moment}</div>
+
+                  <div class="text-lg">
+                    {activity["Påverkan av undervisning"]}
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="text-sm text-gray-700">
+                    Start: {activity.Start.toLocaleDateString()}
+                  </span>
+                  <span class="text-sm text-gray-700">
+                    Slut: {activity.Stopp.toLocaleDateString()}
+                  </span>
+                  <div class="ml-auto hidden font-semibold text-red-600 group-data-[active=true]:block">
+                    Pågående
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center gap-4">
-                <span class="text-sm text-gray-700">
-                  Start: {activity.Start.toLocaleDateString()}
-                </span>
-                <span class="text-sm text-gray-700">
-                  Slut: {activity.Stopp.toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          ))
+            );
+          })
         }
       </div>
     </section>
