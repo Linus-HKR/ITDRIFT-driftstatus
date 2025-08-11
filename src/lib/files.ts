@@ -3,7 +3,7 @@ import * as fs from "fs";
 import type { Activity, Ticket } from "../types";
 import * as XLSX from "xlsx";
 import { TICKET_FOLDER_PATH, SCHEDULE_FILE_PATH } from "astro:env/server";
-import { join } from "node:path";
+import { join } from "node:path/posix";
 
 export async function readTickets() {
   const ticketJson = await glob(
