@@ -3,10 +3,11 @@ import * as fs from "fs";
 import type { Activity, Ticket } from "../types";
 import * as XLSX from "xlsx";
 import { TICKET_FOLDER_PATH, SCHEDULE_FILE_PATH } from "astro:env/server";
+import { join } from "node:path";
 
 export async function readTickets() {
   const ticketJson = await glob(
-    `${TICKET_FOLDER_PATH}/{new,prio1,prio2,prio3}/*.json`
+    join(TICKET_FOLDER_PATH, "/{new,prio1,prio2,prio3}/*.json")
   );
   const tickets = ticketJson
     .map((ticketPath) => fs.readFileSync(ticketPath, "utf16le"))
