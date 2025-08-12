@@ -1,9 +1,26 @@
 import { glob } from "glob";
 import * as fs from "fs";
-import type { Activity, Ticket } from "../types";
+import type { Ticket } from "../types";
 import * as XLSX from "xlsx";
 import { TICKET_FOLDER_PATH, SCHEDULE_FILE_PATH } from "astro:env/server";
 import { join } from "node:path/posix";
+import { z } from "astro:schema";
+
+// Schemas
+
+const activityObjectSchema = z.object({
+  Start: z.coerce.date(),
+  Stopp: z.coerce.date(),
+  Kvartal: z.enum(["Q1", "Q2", "Q3", "Q4"]),
+  Ansvarig: z.string().optional(),
+  Prioritet: z.number(),
+  Moment: z.string(),
+  Momentbeskrivning: z.string(),
+  "Påverkan av undervisning": z.string(),
+  "Visa i driftsschema": z.enum(["Ja", "Nej"]).optional(),
+});
+
+// Functions
 
 export async function readTickets() {
   const ticketJson = await glob(
@@ -31,8 +48,17 @@ export function readExcel() {
     cellDates: true,
   });
   const scheduleData = XLSX.utils.sheet_to_json(
-    workbook.Sheets[workbook.SheetNames[0]],
+    workbook.Sheets["Uppgifter och datum"],
   );
 
-  return scheduleData as Activity[];
+  const activityData = scheduleData
+    .map((obj) => {
+      const parseRes = activityObjectSchema.safeParse(obj);
+
+      if (parseRes.success) return parseRes.data;
+      return null;
+    })
+    .filter((activity) => !!activity);
+
+  return activityData;
 }

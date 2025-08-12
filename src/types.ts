@@ -14,14 +14,15 @@ export type Ticket = {
   visible?: "Private" | "Public";
 };
 
-export type Activity = {
-  Start: Date;
-  Stopp: Date;
-  Kvartal: "Q1" | "Q2" | "Q3" | "Q4";
-  Ansvarig: string;
-  Prioritet: number;
-  Moment: string;
-  Momentbeskrivning: string;
-  "Påverkan av undervisning": string;
-  "Inlagt i driftsschema": "Ja" | "Nej";
-};
+// Replaced by schema
+// export type Activity = {
+//   Start: Date;
+//   Stopp: Date;
+//   Kvartal: "Q1" | "Q2" | "Q3" | "Q4";
+//   Ansvarig: string;
+//   Prioritet: number;
+//   Moment: string;
+//   Momentbeskrivning: string;
+//   "Påverkan av undervisning": string;
+//   "Visa i driftsschema": "Ja" | "Nej" | "";
+// };

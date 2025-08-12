@@ -18,7 +18,7 @@ const tickets = (await readTickets())
   .sort((a, b) => a.Date.getTime() - b.Date.getTime());
 
 const scheduledActivities = readExcel()
-  .filter((activity) => activity["Inlagt i driftsschema"] === "Ja")
+  .filter((activity) => activity["Visa i driftsschema"] === "Ja")
   .filter((activity) => activity.Stopp.getTime() > Date.now())
   .sort((a, b) => a.Start.getTime() - b.Start.getTime());
 ---
