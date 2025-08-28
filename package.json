@@ -10,6 +10,7 @@
     "db": "drizzle-kit"
   },
   "dependencies": {
+    "@astrojs/node": "^9.4.3",
     "@fontsource-variable/inter": "^5.2.6",
     "@t3-oss/env-core": "^0.13.8",
     "@tailwindcss/vite": "^4.1.11",
