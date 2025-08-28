@@ -1,0 +1,39 @@
+name: Build Astro site
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: ./pnpm-lock.yaml
+        
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: true
+        
+      - name: Build Astro
+        run: pnpm run astro build
+        
+      - name: Upload built files
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: ./dist
+
