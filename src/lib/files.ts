@@ -2,9 +2,9 @@ import { glob } from "glob";
 import * as fs from "fs";
 import type { Ticket } from "../types";
 import * as XLSX from "xlsx";
-import { TICKET_FOLDER_PATH, SCHEDULE_FILE_PATH } from "astro:env/server";
 import { join } from "node:path/posix";
 import { z } from "astro:schema";
+import { env } from "../env";
 
 // Schemas
 
@@ -24,7 +24,7 @@ const activityObjectSchema = z.object({
 
 export async function readTickets() {
   const ticketJson = await glob(
-    join(TICKET_FOLDER_PATH, "/{new,prio1,prio2,prio3}/*.json"),
+    join(env.TICKET_FOLDER_PATH, "/{new,prio1,prio2,prio3}/*.json"),
   );
   const tickets = ticketJson
     .map((ticketPath) => fs.readFileSync(ticketPath, "utf16le"))
@@ -44,7 +44,7 @@ export async function readTickets() {
 
 XLSX.set_fs(fs);
 export function readExcel() {
-  const workbook = XLSX.readFile(SCHEDULE_FILE_PATH, {
+  const workbook = XLSX.readFile(env.SCHEDULE_FILE_PATH, {
     cellDates: true,
   });
   const scheduleData = XLSX.utils.sheet_to_json(

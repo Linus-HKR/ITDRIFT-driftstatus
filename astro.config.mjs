@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, envField } from "astro/config";
+import { defineConfig } from "astro/config";
 
 import tailwindcss from "@tailwindcss/vite";
 
@@ -7,24 +7,5 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
-  },
-
-  env: {
-    schema: {
-      TICKET_FOLDER_PATH: envField.string({
-        context: "server",
-        access: "secret",
-      }),
-      SCHEDULE_FILE_PATH: envField.string({
-        context: "server",
-        access: "secret",
-        endsWith: ".xlsx",
-      }),
-      INTERNAL_USERS: envField.string({
-        context: "server",
-        access: "secret",
-        default: "olalin, eksted, mindb",
-      }),
-    },
   },
 });

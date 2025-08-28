@@ -1,9 +1,9 @@
 ---
+import { env } from "../env";
 import Layout from "../layouts/Layout.astro";
 import { readExcel, readTickets } from "../lib/files";
-import { INTERNAL_USERS } from "astro:env/server";
 
-const internalUsers = INTERNAL_USERS.split(",").map((usr) =>
+const internalUsers = env.INTERNAL_USERS.split(",").map((usr) =>
   usr.trim().toLowerCase(),
 );
 
