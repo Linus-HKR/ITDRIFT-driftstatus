@@ -42,7 +42,7 @@ const scheduledActivities = readExcel()
                 <span class="text-xl font-semibold">{ticket.Title}</span>
                 <p class="line-clamp-2 whitespace-pre-wrap">{ticket.Error}</p>
                 <span class="text-sm text-gray-700">
-                  Öppnad: {ticket.Date.toLocaleDateString()}
+                  Öppnad: {ticket.Date.toLocaleDateString("sv-SE")}
                 </span>
               </div>
             ))
@@ -79,10 +79,10 @@ const scheduledActivities = readExcel()
                 </div>
                 <div class="flex items-center gap-4">
                   <span class="text-sm text-gray-700">
-                    Start: {activity.Start.toLocaleDateString()}
+                    Start: {activity.Start.toLocaleDateString("sv-SE")}
                   </span>
                   <span class="text-sm text-gray-700">
-                    Slut: {activity.Stopp.toLocaleDateString()}
+                    Slut: {activity.Stopp.toLocaleDateString("sv-SE")}
                   </span>
                   <div class="ml-auto hidden font-semibold text-red-600 group-data-[active=true]:block">
                     Pågående
