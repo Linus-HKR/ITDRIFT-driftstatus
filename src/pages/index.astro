@@ -1,26 +1,10 @@
 ---
-import { env } from "../env";
 import Layout from "../layouts/Layout.astro";
-import { readExcel, readTickets } from "../lib/files";
+import Planned from "./_index/Planned";
+import Tickets from "./_index/Tickets";
+import { env } from "../env";
 
-const internalUsers = env.INTERNAL_USERS.split(",").map((usr) =>
-  usr.trim().toLowerCase(),
-);
-
-// Tickets not belonging to internal users
-const tickets = (await readTickets())
-  .filter((ticket) => {
-    if (ticket.visible !== undefined)
-      return ticket.visible === "Public" ? true : false;
-
-    return !internalUsers.some((int) => int === ticket.Username);
-  })
-  .sort((a, b) => a.Date.getTime() - b.Date.getTime());
-
-const scheduledActivities = readExcel()
-  .filter((activity) => activity["Visa i driftsschema"] === "Ja")
-  .filter((activity) => activity.Stopp.getTime() > Date.now())
-  .sort((a, b) => a.Start.getTime() - b.Start.getTime());
+const refreshInterval = env.REFRESH_INTERVAL;
 ---
 
 <Layout>
@@ -30,76 +14,7 @@ const scheduledActivities = readExcel()
     </h1>
   </header>
   <main class="grid gap-8 lg:grid-cols-2">
-    <section class="ring-hkr rounded ring-2">
-      <h2 class="bg-hkr flex p-4 text-3xl font-bold text-gray-950">
-        Pågående problem &ndash; {tickets.length}
-      </h2>
-      <div class="grid grid-cols-1 gap-4 p-4 xl:grid-cols-2">
-        {
-          tickets.length > 0 ? (
-            tickets.map((ticket) => (
-              <div class="flex flex-col gap-2 rounded p-2 ring-2 ring-gray-950 xl:odd:last:col-span-2">
-                <span class="text-xl font-semibold">{ticket.Title}</span>
-                <p class="line-clamp-2 whitespace-pre-wrap">{ticket.Error}</p>
-                <span class="text-sm text-gray-700">
-                  Öppnad: {ticket.Date.toLocaleDateString("sv-SE")}
-                </span>
-              </div>
-            ))
-          ) : (
-            <span class="text-lg font-bold">
-              Inga pågående rapporterade problem
-            </span>
-          )
-        }
-      </div>
-    </section>
-    <section class="ring-hkr rounded ring-2">
-      <h2 class="bg-hkr p-4 text-3xl font-bold text-gray-950">
-        Planerade moment
-      </h2>
-      <div class="grid grid-cols-1 gap-4 p-4 xl:grid-cols-2">
-        {
-          scheduledActivities.map((activity) => {
-            const active =
-              activity.Start.getTime() < Date.now() &&
-              Date.now() < activity.Stopp.getTime();
-
-            return (
-              <div
-                data-active={active}
-                class="group flex flex-col gap-2 rounded p-2 ring-2 ring-gray-950 data-[active=true]:ring-red-600 xl:odd:last:col-span-2"
-              >
-                <div>
-                  <div class="text-xl font-semibold">{activity.Moment}</div>
-
-                  <div class="text-lg">
-                    {activity["Påverkan av undervisning"]}
-                  </div>
-                </div>
-                <div class="flex items-center gap-4">
-                  <span class="text-sm text-gray-700">
-                    Start: {activity.Start.toLocaleDateString("sv-SE")}
-                  </span>
-                  <span class="text-sm text-gray-700">
-                    Slut: {activity.Stopp.toLocaleDateString("sv-SE")}
-                  </span>
-                  <div class="ml-auto hidden font-semibold text-red-600 group-data-[active=true]:block">
-                    Pågående
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        }
-      </div>
-    </section>
+    <Tickets client:load refreshInterval={refreshInterval} />
+    <Planned client:load refreshInterval={refreshInterval} />
   </main>
 </Layout>
-
-<script>
-  import.meta.env.PROD &&
-    setTimeout(() => {
-      window.location.reload();
-    }, 15_000);
-</script>
